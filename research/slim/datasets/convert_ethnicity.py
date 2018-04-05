@@ -88,7 +88,7 @@ def _get_filenames_and_classes(dataset_dir):
 
 
 def _get_dataset_filename(dataset_dir, split_name, shard_id):
-  output_filename = 'ethnicity_%s_%05d-of-%05d.tfrecord' % (
+  output_filename = 'tf_records/ethnicity_%s_%05d-of-%05d.tfrecord' % (
       split_name, shard_id, _NUM_SHARDS)
   return os.path.join(dataset_dir, output_filename)
 
@@ -145,12 +145,13 @@ def _clean_up_temporary_files(dataset_dir):
   Args:
     dataset_dir: The directory where the temporary files are stored.
   """
-  filename = _DATA_URL.split('/')[-1]
-  filepath = os.path.join(dataset_dir, filename)
-  tf.gfile.Remove(filepath)
+  pass
+  # filename = _DATA_URL.split('/')[-1]
+  # filepath = os.path.join(dataset_dir, filename)
+  # tf.gfile.Remove(filepath)
 
-  tmp_dir = os.path.join(dataset_dir, 'flower_photos')
-  tf.gfile.DeleteRecursively(tmp_dir)
+  # tmp_dir = os.path.join(dataset_dir, 'flower_photos')
+  # tf.gfile.DeleteRecursively(tmp_dir)
 
 
 def _dataset_exists(dataset_dir):
