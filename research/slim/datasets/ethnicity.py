@@ -31,7 +31,7 @@ slim = tf.contrib.slim
 
 _FILE_PATTERN = 'ethnicity_%s_*.tfrecord'
 
-SPLITS_TO_SIZES = {'train': 3320, 'validation': 350}
+SPLITS_TO_SIZES = {'train': 15000, 'validation': 2199}
 
 _NUM_CLASSES = 5
 
