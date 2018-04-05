@@ -522,3 +522,28 @@ image_preprocessing_fn = preprocessing_factory.get_preprocessing(
 
 See
 [Hardware Specifications](https://github.com/tensorflow/models/tree/master/research/inception#what-hardware-specification-are-these-hyper-parameters-targeted-for).
+
+#### Personal instructions
+
+Let's say you have a directory of images: ```/data/photos/class1```, ```/data/photos/class2```,...
+
+To create TFRecord from directory of images:
+
+```python3
+download_and_convert_data.py --dataset_name=ethnicity --dataset_dir="${DATA_DIR}"
+```
+
+To train model from scratch using TFRecords:
+
+```python3
+train_image_classifier.py --train_dir=${TRAIN_DIR} \
+  --dataset_name=ethnicity \
+  --dataset_split_name=train \
+  --dataset_dir=${DATASET_DIR} \
+  --model_name=inception_v3
+```
+
+
+
+
+
