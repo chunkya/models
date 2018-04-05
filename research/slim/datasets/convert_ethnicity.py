@@ -69,7 +69,7 @@ def _get_filenames_and_classes(dataset_dir):
     subdirectories, representing class names.
   """
   # dataset_dir is /data/safe/demographics/ethnicity/cropped_faces
-  ethnicity_root = dataset_dir
+  ethnicity_root = os.path.join(dataset_dir, 'photos')
   directories = []
   class_names = []
   for filename in os.listdir(ethnicity_root):
@@ -88,7 +88,7 @@ def _get_filenames_and_classes(dataset_dir):
 
 
 def _get_dataset_filename(dataset_dir, split_name, shard_id):
-  output_filename = 'tf_records/ethnicity_%s_%05d-of-%05d.tfrecord' % (
+  output_filename = 'tf_record/ethnicity_%s_%05d-of-%05d.tfrecord' % (
       split_name, shard_id, _NUM_SHARDS)
   return os.path.join(dataset_dir, output_filename)
 
@@ -138,22 +138,6 @@ def _convert_dataset(split_name, filenames, class_names_to_ids, dataset_dir):
   sys.stdout.write('\n')
   sys.stdout.flush()
 
-
-def _clean_up_temporary_files(dataset_dir):
-  """Removes temporary files used to create the dataset.
-
-  Args:
-    dataset_dir: The directory where the temporary files are stored.
-  """
-  pass
-  # filename = _DATA_URL.split('/')[-1]
-  # filepath = os.path.join(dataset_dir, filename)
-  # tf.gfile.Remove(filepath)
-
-  # tmp_dir = os.path.join(dataset_dir, 'flower_photos')
-  # tf.gfile.DeleteRecursively(tmp_dir)
-
-
 def _dataset_exists(dataset_dir):
   for split_name in ['train', 'validation']:
     for shard_id in range(_NUM_SHARDS):
@@ -170,6 +154,10 @@ def run(dataset_dir):
   Args:
     dataset_dir: The dataset directory where the dataset is stored.
   """
+  tf_record_path = os.path.join(dataset_dir, 'tf_record')
+  if not tf.gfile.Exists(tf_record_path):
+    tf.gfile.MakeDirs(tf_record_path)
+
   photo_filenames, class_names = _get_filenames_and_classes(dataset_dir)
   class_names_to_ids = dict(zip(class_names, range(len(class_names))))
 
@@ -187,7 +175,7 @@ def run(dataset_dir):
 
   # Finally, write the labels file:
   labels_to_class_names = dict(zip(range(len(class_names)), class_names))
-  dataset_utils.write_label_file(labels_to_class_names, dataset_dir)
+  dataset_utils.write_label_file(labels_to_class_names, tf_record_path)
 
-  _clean_up_temporary_files(dataset_dir)
+  # _clean_up_temporary_files(dataset_dir)
   print('\nFinished converting the Flowers dataset!')
