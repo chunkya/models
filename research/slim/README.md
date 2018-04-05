@@ -530,16 +530,16 @@ Let's say you have a directory of images: ```/data/photos/class1```, ```/data/ph
 To create TFRecord from directory of images:
 
 ```python3
-download_and_convert_data.py --dataset_name=ethnicity --dataset_dir="${DATA_DIR}"
+download_and_convert_data.py --dataset_name=ethnicity --dataset_dir=/data/
 ```
 
 To train model from scratch using TFRecords:
 
 ```python3
-train_image_classifier.py --train_dir=${TRAIN_DIR} \
+train_image_classifier.py --train_dir=/tmp/train_logs \
   --dataset_name=ethnicity \
   --dataset_split_name=train \
-  --dataset_dir=${DATASET_DIR} \
+  --dataset_dir=/data/tf_record \
   --model_name=inception_v3
 ```
 
