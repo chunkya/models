@@ -158,6 +158,7 @@ def main(_):
             logits, labels, 5),
     })
 
+    c_matrix = slim.metrics.confusion_matrix(predictions, labels)
     # Print the summaries to screen.
     tags = np.array([['black', 'chinese', 'indian', 'malay', 'white']] * 5)
     for name, value in names_to_values.items():
@@ -165,8 +166,10 @@ def main(_):
       op = tf.summary.scalar(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
-    names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
-    names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
+    op = tf.image_summary("confusion matrix", c_matrix, collections=[])
+    op = tf.Print(op, c_matrix)
+    names_to_values.update({'confusion_matrix': c_matrix})
+    names_to_updates.update({'confusion_matrix': c_matrix})
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
       num_batches = FLAGS.max_num_batches
