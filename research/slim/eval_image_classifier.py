@@ -166,7 +166,7 @@ def main(_):
       op = tf.summary.scalar(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
-    op = tf.image_summary("confusion matrix", c_matrix, collections=[])
+    op = tf.summary.tensor_summary("confusion matrix", c_matrix, collections=[])
     op = tf.Print(op, c_matrix)
     tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
