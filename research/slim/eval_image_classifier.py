@@ -168,6 +168,8 @@ def main(_):
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
     op = tf.image_summary("confusion matrix", c_matrix, collections=[])
     op = tf.Print(op, c_matrix)
+    tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+
     names_to_values.update({'confusion_matrix': c_matrix})
     names_to_updates.update({'confusion_matrix': c_matrix})
     # TODO(sguada) use num_epochs=1
