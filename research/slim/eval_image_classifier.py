@@ -159,22 +159,14 @@ def main(_):
     })
 
     # Print the summaries to screen.
-    print(names_to_values)
-    print(names_to_updates)
-    names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
-    names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
-    tags = np.array([[0, 1, 2, 3, 4]] * 5)
-    print(names_to_values)
-    print(names_to_updates)
+    tags = np.array([['black', 'chinese', 'indian', 'malay', 'white']] * 5)
     for name, value in names_to_values.items():
       summary_name = 'eval/%s' % name
-      if name == 'confusion_matrix':
-        op = tf.summary.scalar(tags, value, collections=[])
-      else:
-        op = tf.summary.scalar(summary_name, value, collections=[])
+      op = tf.summary.scalar(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
-
+    names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
+    names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
       num_batches = FLAGS.max_num_batches
