@@ -24,6 +24,7 @@ import tensorflow as tf
 from datasets import dataset_factory
 from nets import nets_factory
 from preprocessing import preprocessing_factory
+import numpy as np
 
 slim = tf.contrib.slim
 
@@ -152,16 +153,23 @@ def main(_):
 
     # Define the metrics:
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-        'False_negatives': slim.metrics.streaming_false_negatives(predictions, labels),
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(
             logits, labels, 5),
     })
 
     # Print the summaries to screen.
+    print(names_to_values)
+    print(names_to_updates)
+    names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
+    names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
+    tags = np.array([['black', 'chinese', 'indian', 'malay', 'white']] * 5)
     for name, value in names_to_values.items():
       summary_name = 'eval/%s' % name
-      op = tf.summary.scalar(summary_name, value, collections=[])
+      if name == 'confusion_matrix':
+        op = tf.summary.scalar(tags, value, collections=[])
+      else:
+        op = tf.summary.scalar(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
@@ -178,12 +186,13 @@ def main(_):
       checkpoint_path = FLAGS.checkpoint_path
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
+    eval_op = list(names_to_updates.values())
     slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
         num_evals=num_batches,
-        eval_op=list(names_to_updates.values()),
+        eval_op=eval_op,
         variables_to_restore=variables_to_restore)
 
 
