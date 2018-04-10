@@ -152,7 +152,8 @@ def main(_):
 
     # Define the metrics:
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-        'Confusion_matrix': tf.contrib.metrics.confusion_matrix(predictions, labels),
+        'predictions': predictions,
+        'labels': labels,
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(
             logits, labels, 5),
