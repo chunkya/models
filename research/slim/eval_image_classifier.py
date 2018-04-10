@@ -163,7 +163,9 @@ def main(_):
     print(names_to_updates)
     names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
     names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
-    tags = np.array([['black', 'chinese', 'indian', 'malay', 'white']] * 5)
+    tags = np.array([[0, 1, 2, 3, 4]] * 5)
+    print(names_to_values)
+    print(names_to_updates)
     for name, value in names_to_values.items():
       summary_name = 'eval/%s' % name
       if name == 'confusion_matrix':
