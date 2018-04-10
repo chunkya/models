@@ -178,7 +178,8 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     print(names_to_updates)
-    
+    eval_op = list(names_to_updates.values())
+    eval_op.append(slim.metrics.confusion_matrix(predictions, labels))
     slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
