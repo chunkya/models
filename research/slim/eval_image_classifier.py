@@ -158,6 +158,10 @@ def main(_):
     })
 
     # Print the summaries to screen.
+    print(names_to_values)
+    print(names_to_updates)
+    names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
+    names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
     for name, value in names_to_values.items():
       summary_name = 'eval/%s' % name
       op = tf.summary.scalar(summary_name, value, collections=[])
@@ -177,15 +181,12 @@ def main(_):
       checkpoint_path = FLAGS.checkpoint_path
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
-    print(names_to_updates)
-    eval_op = list(names_to_updates.values())
-    eval_op.append(slim.metrics.confusion_matrix(predictions, labels))
     slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
         num_evals=num_batches,
-        eval_op=eval_op,
+        eval_op=list(names_to_updates.values()),
         variables_to_restore=variables_to_restore)
 
 
