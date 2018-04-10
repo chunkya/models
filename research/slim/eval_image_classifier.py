@@ -164,6 +164,7 @@ def main(_):
     for name, value in names_to_values.items():
       summary_name = 'eval/%s' % name
       op = tf.summary.scalar(summary_name, value, collections=[])
+      print(op)
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
     op = tf.summary.tensor_summary("confusion matrix", c_matrix, collections=[])
