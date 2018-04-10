@@ -152,16 +152,13 @@ def main(_):
 
     # Define the metrics:
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
+        'False_negatives': slim.metrics.streaming_false_negatives(predictions, labels),
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(
             logits, labels, 5),
     })
 
     # Print the summaries to screen.
-    print(names_to_values)
-    print(names_to_updates)
-    names_to_values.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
-    names_to_updates.update({'confusion_matrix': slim.metrics.confusion_matrix(predictions, labels)})
     for name, value in names_to_values.items():
       summary_name = 'eval/%s' % name
       op = tf.summary.scalar(summary_name, value, collections=[])
