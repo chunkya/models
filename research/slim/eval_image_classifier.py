@@ -168,7 +168,7 @@ def main(_):
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
     op = tf.summary.tensor_summary("confusion_matrix", c_matrix, collections=[])
-    op = tf.Print(op, [c_matrix])
+    op = tf.Print(c_matrix, [c_matrix])
     tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
     names_to_values.update({'confusion_matrix': c_matrix})
