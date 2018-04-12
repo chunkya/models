@@ -73,19 +73,19 @@ def load_graph(model_file):
 def export(graph_file, output_dir):
     graph = load_graph(graph_file)
     with tf.Session(graph = graph) as sess:
-      # Build and save prediction meta graph and trained variable values.
-      prediction_signature = build_prediction_signature(graph)
+        # Build and save prediction meta graph and trained variable values.
+        prediction_signature = build_prediction_signature(graph)
 
-      # Create a saver for writing SavedModel training checkpoints.
-      build = builder.SavedModelBuilder(
-          os.path.join(output_dir, 'saved_model'))  
-      build.add_meta_graph_and_variables(
-          sess, [tag_constants.SERVING],
-          signature_def_map={
-              signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: prediction_signature
-          },
-          assets_collection=tf.get_collection(tf.GraphKeys.ASSET_FILEPATHS))
-      build.save()
+        # Create a saver for writing SavedModel training checkpoints.
+        build = builder.SavedModelBuilder(
+            os.path.join(output_dir, 'saved_model'))
+        build.add_meta_graph_and_variables(
+            sess, [tag_constants.SERVING],
+            signature_def_map={
+                signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: prediction_signature
+            },
+            assets_collection=tf.get_collection(tf.GraphKeys.ASSET_FILEPATHS))
+        build.save()
 
 def main(_):
     export(FLAGS.graph_file, FLAGS.output_dir)
