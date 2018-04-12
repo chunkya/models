@@ -46,17 +46,10 @@ FLAGS = tf.app.flags.FLAGS
 def build_prediction_signature(graph):
     input_name = "import/" + FLAGS.input_layer
     output_name = "import/" + FLAGS.output_layer
-    input_operation = graph.get_operation_by_name(input_name)
-    output_operation = graph.get_operation_by_name(output_name)
-    names = [n.name for n in graph.as_graph_def().node]
-    print(names)
-    print(input_operation)
-    print(input_operation.outputs)
-    print(input_operation.outputs[0])
-    input_tensor = graph.get_tensor_by_name('input')
-    print(input_tensor)
-    tensor_info_input = utils.build_tensor_info(input_operation)
-    tensor_info_output = utils.build_tensor_info(output_operation)
+    input_tensor = graph.get_tensor_by_name(input_name + ':0')
+    output_tensor = graph.get_tensor_by_name(output_name + ':0')
+    tensor_info_input = utils.build_tensor_info(input_tensor)
+    tensor_info_output = utils.build_tensor_info(output_tensor)
 
     prediction_signature = signature_def_utils.build_signature_def(
         inputs = {'images': tensor_info_input},
