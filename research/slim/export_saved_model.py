@@ -49,7 +49,7 @@ def build_prediction_signature(graph):
     input_operation = graph.get_operation_by_name(input_name)
     output_operation = graph.get_operation_by_name(output_name)
     print(input_operation)
-    input_tensor = graph.get_tensor_by_name(input_name)
+    input_tensor = graph.get_tensor_by_name('input')
     print(input_tensor)
     tensor_info_input = utils.build_tensor_info(input_operation)
     tensor_info_output = utils.build_tensor_info(output_operation)
