@@ -74,7 +74,7 @@ def export(graph_file, output_dir):
     graph = load_graph(graph_file)
     with tf.Session(graph = graph) as sess:
       # Build and save prediction meta graph and trained variable values.
-      prediction_signatures = build_prediction_signature(graph)
+      prediction_signature = build_prediction_signature(graph)
 
       # Create a saver for writing SavedModel training checkpoints.
       build = builder.SavedModelBuilder(
