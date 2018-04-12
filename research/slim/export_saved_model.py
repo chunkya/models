@@ -48,6 +48,8 @@ def build_prediction_signature(graph):
     output_name = "import/" + FLAGS.output_layer
     input_operation = graph.get_operation_by_name(input_name)
     output_operation = graph.get_operation_by_name(output_name)
+    names = [n.name for n in graph.as_graph_def().node]
+    print(names)
     print(input_operation)
     input_tensor = graph.get_tensor_by_name('input')
     print(input_tensor)
