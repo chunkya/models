@@ -48,6 +48,9 @@ def build_prediction_signature(graph):
     output_name = "import/" + FLAGS.output_layer
     input_operation = graph.get_operation_by_name(input_name)
     output_operation = graph.get_operation_by_name(output_name)
+    print(input_operation)
+    input_tensor = graph.get_tensor_by_name(input_name)
+    print(input_tensor)
     tensor_info_input = utils.build_tensor_info(input_operation)
     tensor_info_output = utils.build_tensor_info(output_operation)
 
@@ -78,7 +81,7 @@ def export(graph_file, output_dir):
 
       # Create a saver for writing SavedModel training checkpoints.
       build = builder.SavedModelBuilder(
-          os.path.join(output_dir, 'saved_model'))
+          os.path.join(output_dir, 'saved_model'))  
       build.add_meta_graph_and_variables(
           sess, [tag_constants.SERVING],
           signature_def_map={
