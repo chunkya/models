@@ -51,6 +51,8 @@ def build_prediction_signature(graph):
     names = [n.name for n in graph.as_graph_def().node]
     print(names)
     print(input_operation)
+    print(input_operation.outputs)
+    print(input_operation.outputs[0])
     input_tensor = graph.get_tensor_by_name('input')
     print(input_tensor)
     tensor_info_input = utils.build_tensor_info(input_operation)
