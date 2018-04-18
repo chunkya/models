@@ -96,13 +96,19 @@ def _create_local(name, shape, collections=None, validate_shape=True,
     # Make sure local variables are added to tf.GraphKeys.LOCAL_VARIABLES
     collections = list(collections or [])
     collections += [tf.GraphKeys.LOCAL_VARIABLES]
-    return tf.get_variable(
-        name,
-        tf.zeros(shape, dtype=dtype),
+    return tf.Variable(
+        initial_value=tf.zeros(shape, dtype=dtype),
+        name=name,
         trainable=False,
         collections=collections,
-        validate_shape=validate_shape
-    )
+        validate_shape=validate_shape)
+    # return tf.get_variable(
+    #     name,
+    #     tf.zeros(shape, dtype=dtype),
+    #     trainable=False,
+    #     collections=collections,
+    #     validate_shape=validate_shape
+    # )
 
 
 # Function to aggregate confusion
