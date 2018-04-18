@@ -24,7 +24,6 @@ import tensorflow as tf
 from datasets import dataset_factory
 from nets import nets_factory
 from preprocessing import preprocessing_factory
-import numpy as np
 
 slim = tf.contrib.slim
 
@@ -81,6 +80,48 @@ tf.app.flags.DEFINE_integer(
     'eval_image_size', None, 'Eval image size')
 
 FLAGS = tf.app.flags.FLAGS
+
+def _create_local(name, shape, collections=None, validate_shape=True,
+                  dtype=tf.float32):
+    """Creates a new local variable.
+    Args:
+      name: The name of the new or existing variable.
+      shape: Shape of the new or existing variable.
+      collections: A list of collection names to which the Variable will be added.
+      validate_shape: Whether to validate the shape of the variable.
+      dtype: Data type of the variables.
+    Returns:
+      The created variable.
+    """
+    # Make sure local variables are added to tf.GraphKeys.LOCAL_VARIABLES
+    collections = list(collections or [])
+    collections += [tf.GraphKeys.LOCAL_VARIABLES]
+    return tf.Variable(
+        initial_value=tf.zeros(shape, dtype=dtype),
+        name=name,
+        trainable=False,
+        collections=collections,
+        validate_shape=validate_shape
+    )
+
+
+# Function to aggregate confusion
+def _get_streaming_metrics(prediction, label, num_classes):
+    with tf.name_scope("eval"):
+        batch_confusion = tf.confusion_matrix(label, prediction,
+                                              num_classes=num_classes,
+                                              name='batch_confusion')
+
+        confusion = _create_local('confusion_matrix',
+                                  shape=[num_classes, num_classes],
+                                  dtype=tf.int32)
+        # Create the update op for doing a "+=" accumulation on the batch
+        confusion_update = confusion.assign(confusion + batch_confusion)
+        # Cast counts to float so tf.summary.image renormalizes to [0,255]
+        # confusion_image = tf.reshape(tf.cast(confusion, tf.float32),
+        #                              [1, num_classes, num_classes, 1])
+
+    return confusion, confusion_update
 
 
 def main(_):
@@ -152,10 +193,19 @@ def main(_):
     labels = tf.squeeze(labels)
 
     # Define the metrics:
+    # names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
+    #     'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
+    #     'Recall_5': slim.metrics.streaming_recall_at_k(
+    #         logits, labels, 5),
+    # })
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(
             logits, labels, 5),
+        'Mean_absolute': tf.metrics.mean_absolute_error(labels,
+                                                        predictions),
+        'Confusion_matrix': _get_streaming_metrics(labels, predictions,
+                                                   dataset.num_classes - FLAGS.labels_offset),
     })
 
     # Print the summaries to screen.
@@ -181,14 +231,25 @@ def main(_):
       checkpoint_path = FLAGS.checkpoint_path
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
-    eval_op = list(names_to_updates.values())
-    slim.evaluation.evaluate_once(
+    # eval_op = list(names_to_updates.values())
+    [confusion_matrix] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
         num_evals=num_batches,
-        eval_op=eval_op,
-        variables_to_restore=variables_to_restore)
+        eval_op=list(names_to_updates.values()),
+        variables_to_restore=variables_to_restore,
+        # session_config=session_config,
+        final_op=[names_to_updates['Confusion_matrix']]
+    )
+    print(confusion_matrix)
+    # slim.evaluation.evaluate_once(
+    #     master=FLAGS.master,
+    #     checkpoint_path=checkpoint_path,
+    #     logdir=FLAGS.eval_dir,
+    #     num_evals=num_batches,
+    #     eval_op=eval_op,
+    #     variables_to_restore=variables_to_restore)
 
 
 if __name__ == '__main__':
