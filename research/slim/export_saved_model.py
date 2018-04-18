@@ -52,7 +52,7 @@ def build_prediction_signature(graph):
     tensor_info_output = utils.build_tensor_info(output_tensor)
 
     prediction_signature = signature_def_utils.build_signature_def(
-        inputs = {'images': tensor_info_input},
+        inputs = {'input': tensor_info_input},
         outputs = {'output': tensor_info_output},
         method_name = signature_constants.PREDICT_METHOD_NAME
     )
@@ -89,9 +89,6 @@ def export(graph_file, output_dir):
 
 def main(_):
     export(FLAGS.graph_file, FLAGS.output_dir)
-
-
-
 
 if __name__ == '__main__':
     tf.app.run()
