@@ -164,8 +164,8 @@ def main(_):
       op = tf.summary.scalar(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
-    op = tf.Print(tf.as_string(predictions), [predictions], 'predictions')
-    tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+    c_matrix = slim.metrics.confusion_matrix(predictions, labels)
+    op = tf.Print(tf.as_string(c_matrix), [c_matrix], 'confusion_matrix')
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
       num_batches = FLAGS.max_num_batches
