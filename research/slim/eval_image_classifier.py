@@ -97,8 +97,8 @@ def _create_local(name, shape, collections=None, validate_shape=True,
     collections = list(collections or [])
     collections += [tf.GraphKeys.LOCAL_VARIABLES]
     return tf.get_variable(
-        initial_value=tf.zeros(shape, dtype=dtype),
-        name=name,
+        name,
+        tf.zeros(shape, dtype=dtype),
         trainable=False,
         collections=collections,
         validate_shape=validate_shape
