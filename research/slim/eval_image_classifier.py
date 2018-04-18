@@ -118,8 +118,8 @@ def _get_streaming_metrics(prediction, label, num_classes):
         # Create the update op for doing a "+=" accumulation on the batch
         confusion_update = confusion.assign(confusion + batch_confusion)
         # Cast counts to float so tf.summary.image renormalizes to [0,255]
-        # confusion_image = tf.reshape(tf.cast(confusion, tf.float32),
-        #                              [1, num_classes, num_classes, 1])
+        confusion_image = tf.reshape(tf.cast(confusion, tf.float32),
+                                     [1, num_classes, num_classes, 1])
 
     return confusion, confusion_update
 
