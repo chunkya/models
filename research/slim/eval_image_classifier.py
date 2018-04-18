@@ -164,7 +164,7 @@ def main(_):
       op = tf.summary.scalar(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
       tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
-    op = tf.Print(predictions, [predictions], 'predictions')
+    op = tf.Print(tf.as_string(predictions), [predictions], 'predictions')
     tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
