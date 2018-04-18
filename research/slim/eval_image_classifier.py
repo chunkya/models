@@ -209,11 +209,11 @@ def main(_):
     })
 
     # Print the summaries to screen.
-    for name, value in names_to_values.items():
-      summary_name = 'eval/%s' % name
-      op = tf.summary.scalar(summary_name, value, collections=[])
-      op = tf.Print(op, [value], summary_name)
-      tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+    # for name, value in names_to_values.items():
+    #   summary_name = 'eval/%s' % name
+    #   op = tf.summary.scalar(summary_name, value, collections=[])
+    #   op = tf.Print(op, [value], summary_name)
+    #   tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
     c_matrix = slim.metrics.confusion_matrix(predictions, labels)
     op = tf.Print(tf.as_string(c_matrix), [c_matrix], 'confusion_matrix')
