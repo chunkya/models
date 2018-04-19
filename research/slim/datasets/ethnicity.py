@@ -33,7 +33,7 @@ _FILE_PATTERN = 'ethnicity_%s_*.tfrecord'
 
 # SPLITS_TO_SIZES = {'train': 20033, 'validation': 5010}
 
-_NUM_CLASSES = 5
+# _NUM_CLASSES = 5
 
 _ITEMS_TO_DESCRIPTIONS = {
     'image': 'A color image of varying size.',
@@ -87,7 +87,8 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
   labels_to_names = None
   if dataset_utils.has_labels(dataset_dir):
     labels_to_names = dataset_utils.read_label_file(dataset_dir)
-
+  num_classes = len(labels_to_names)
+  
   split_sizes = dataset_utils.read_split_file(dataset_dir)
 
   return slim.dataset.Dataset(
@@ -96,5 +97,5 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
       decoder=decoder,
       num_samples=split_sizes[split_name],
       items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
-      num_classes=_NUM_CLASSES,
+      num_classes=num_classes,
       labels_to_names=labels_to_names)

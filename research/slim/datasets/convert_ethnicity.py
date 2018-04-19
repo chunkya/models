@@ -163,7 +163,7 @@ def run(dataset_dir):
 
   # Divide into train and test:
   total = len(photo_filenames)
-  num_val = 0.2 * total
+  num_val = int(0.2 * total)
   num_train = total - num_val
   random.seed(_RANDOM_SEED)
   random.shuffle(photo_filenames)
