@@ -166,7 +166,7 @@ def read_split_file(dataset_dir, filename=SPLIT_SIZE_FILENAME):
     split_sizes = {}
     for line in lines:
       index = line.index(':')
-      split_sizes[line[:index]] = line[index + 1:]
+      split_sizes[line[:index]] = int(line[index + 1:])
     return split_sizes
 
 
