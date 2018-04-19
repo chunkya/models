@@ -25,7 +25,7 @@ from six.moves import urllib
 import tensorflow as tf
 
 LABELS_FILENAME = 'labels.txt'
-
+SPLIT_SIZE_FILENAME = 'split_size.txt'
 
 def int64_feature(values):
   """Returns a TF-Feature of int64s.
@@ -148,3 +148,26 @@ def read_label_file(dataset_dir, filename=LABELS_FILENAME):
     index = line.index(':')
     labels_to_class_names[int(line[:index])] = line[index+1:]
   return labels_to_class_names
+
+
+def write_split_file(num_train, num_val, dataset_dir, filename=SPLIT_SIZE_FILENAME):
+  split_size_filename = os.path.join(dataset_dir, filename)
+  with tf.gfile.Open(split_size_filename, 'w') as f:
+    f.write('train:%d\n' % (num_train))
+    f.write('validation:%d\n' % (num_val))
+
+def read_split_file(dataset_dir, filename=SPLIT_SIZE_FILENAME):
+  split_size_filename = os.path.join(dataset_dir, filename)
+  with tf.gfile.Open(split_size_filename, 'rb') as f:
+    lines = f.read().decode()
+    lines = lines.split('\n')
+    lines = filter(None, lines)
+
+    split_sizes = {}
+    for line in lines:
+      index = line.index(':')
+      split_sizes[line[:index]] = line[index + 1:]
+    return split_sizes
+
+
+

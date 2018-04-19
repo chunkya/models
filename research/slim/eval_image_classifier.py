@@ -210,7 +210,7 @@ def main(_):
             logits, labels, 5),
         'Mean_absolute': tf.metrics.mean_absolute_error(labels,
                                                         predictions),
-        'Confusion_matrix': _get_streaming_metrics(labels, predictions,
+        'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
     })
 

@@ -31,7 +31,7 @@ slim = tf.contrib.slim
 
 _FILE_PATTERN = 'ethnicity_%s_*.tfrecord'
 
-SPLITS_TO_SIZES = {'train': 20033, 'validation': 5010}
+# SPLITS_TO_SIZES = {'train': 20033, 'validation': 5010}
 
 _NUM_CLASSES = 5
 
@@ -58,8 +58,8 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
   Raises:
     ValueError: if `split_name` is not a valid train/validation split.
   """
-  if split_name not in SPLITS_TO_SIZES:
-    raise ValueError('split name %s was not recognized.' % split_name)
+  # if split_name not in SPLITS_TO_SIZES:
+  #   raise ValueError('split name %s was not recognized.' % split_name)
 
   if not file_pattern:
     file_pattern = _FILE_PATTERN
@@ -88,11 +88,13 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
   if dataset_utils.has_labels(dataset_dir):
     labels_to_names = dataset_utils.read_label_file(dataset_dir)
 
+  split_sizes = dataset_utils.read_split_file(dataset_dir)
+
   return slim.dataset.Dataset(
       data_sources=file_pattern,
       reader=reader,
       decoder=decoder,
-      num_samples=SPLITS_TO_SIZES[split_name],
+      num_samples=split_sizes[split_name],
       items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
       num_classes=_NUM_CLASSES,
       labels_to_names=labels_to_names)
