@@ -122,7 +122,7 @@ def _get_streaming_metrics(prediction, label, num_classes):
     return confusion, confusion_update
 
 def create_list(name, dtype=tf.int32):
-    collections = list(collections or [])
+    collections = list(None or [])
     collections += [tf.GraphKeys.LOCAL_VARIABLES]
     return tf.Variable(
         initial_value=[],
