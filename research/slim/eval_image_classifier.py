@@ -143,9 +143,9 @@ def get_streaming_misc(predictions, labels, filenames):
         original_class_previous = create_list('original_class', tf.int64)
         predicted_class_previous = create_list('predicted_class', tf.int64)
 
-        mislabeled_filenames = tf.stack([mislabeled_previous, mislabeled_filenames])
-        predicted_class = tf.stack([predicted_class_previous, predicted_class])
-        original_class = tf.stack([original_class_previous, original_class])
+        mislabeled_filenames = tf.concat([mislabeled_previous, mislabeled_filenames])
+        predicted_class = tf.concat([predicted_class_previous, predicted_class])
+        original_class = tf.concat([original_class_previous, original_class])
 
     return mislabeled_filenames, predicted_class, original_class
 
