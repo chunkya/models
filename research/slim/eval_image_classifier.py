@@ -130,23 +130,23 @@ def create_list(name, dtype=tf.int32):
         collections=collections,
         dtype=dtype)
 
-def get_streaming_misc(predictions, labels, filenames, field):
-    with tf.name_scope("eval"):
-        mislabeled = tf.not_equal(predictions, labels)
+# def get_streaming_misc(predictions, labels, filenames, field):
+#     with tf.name_scope("eval"):
+#         mislabeled = tf.not_equal(predictions, labels)
 
-        mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
-        original_class = tf.boolean_mask(labels, mislabeled)
-        predicted_class = tf.boolean_mask(predictions, mislabeled)
+#         mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
+#         original_class = tf.boolean_mask(labels, mislabeled)
+#         predicted_class = tf.boolean_mask(predictions, mislabeled)
 
-        mislabeled_previous = create_list('mislabeled_filenames', tf.string)
-        original_class_previous = create_list('original_class', tf.int64)
-        predicted_class_previous = create_list('predicted_class', tf.int64)
+#         mislabeled_previous = create_list('mislabeled_filenames', tf.string)
+#         original_class_previous = create_list('original_class', tf.int64)
+#         predicted_class_previous = create_list('predicted_class', tf.int64)
 
-        mislabeled_filenames = tf.concat([mislabeled_previous, mislabeled_filenames], 0)
-        predicted_class = tf.concat([predicted_class_previous, predicted_class], 0)
-        original_class = tf.concat([original_class_previous, original_class], 0)
+#         mislabeled_filenames = tf.concat([mislabeled_previous, mislabeled_filenames], 0)
+#         predicted_class = tf.concat([predicted_class_previous, predicted_class], 0)
+#         original_class = tf.concat([original_class_previous, original_class], 0)
 
-    return mislabeled_filenames, predicted_class, original_class
+#     return mislabeled_filenames, predicted_class, original_class
 
 
 def get_streaming_misc(mislabeled, tbmasked, field):
@@ -242,7 +242,7 @@ def main(_):
                                                    dataset.num_classes - FLAGS.labels_offset),
         'misclassified_filenames': get_streaming_misc(mislabeled, filenames, 'mislabeled_filenames'),
         'original_classes': get_streaming_misc(mislabeled, labels, 'original_class'),
-        'predicted_classes': get_streaming_misc(mislabeled, predictions, 'predicted_class'),
+        # 'predicted_classes': get_streaming_misc(mislabeled, predictions, 'predicted_class'),
     })
 
     # Print the summaries to screen.
@@ -272,7 +272,7 @@ def main(_):
     # op = tf.Print(mislabeled_filenames, [mislabeled_filenames], summarize=1000)
     # eval_op.append(op)
     # print(eval_op)
-    [confusion_matrix, misclassifications, original_classes, predicted_classes] = slim.evaluation.evaluate_once(
+    [confusion_matrix, misclassifications, original_classes] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -284,13 +284,13 @@ def main(_):
             names_to_updates['Confusion_matrix'],
             names_to_updates['misclassified_filenames'],
             names_to_updates['original_classes'],
-            names_to_updates['predicted_classes'],
+            # names_to_updates['predicted_classes'],
         ]
     )
     print(confusion_matrix)
     print(misclassifications)
     print(original_classes)
-    print(predicted_classes)
+    # print(predicted_classes)
 
 if __name__ == '__main__':
   tf.app.run()
