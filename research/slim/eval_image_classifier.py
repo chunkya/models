@@ -102,14 +102,6 @@ def _create_local(name, shape, collections=None, validate_shape=True,
         trainable=False,
         collections=collections,
         validate_shape=validate_shape)
-    # return tf.get_variable(
-    #     name,
-    #     tf.zeros(shape, dtype=dtype),
-    #     trainable=False,
-    #     collections=collections,
-    #     validate_shape=validate_shape
-    # )
-
 
 # Function to aggregate confusion
 def _get_streaming_metrics(prediction, label, num_classes):
@@ -160,7 +152,7 @@ def main(_):
         shuffle=False,
         common_queue_capacity=2 * FLAGS.batch_size,
         common_queue_min=FLAGS.batch_size)
-    [image, label] = provider.get(['image', 'label'])
+    [image, label, filename] = provider.get(['image', 'label', 'filename'])
     label -= FLAGS.labels_offset
 
     #####################################
@@ -175,8 +167,8 @@ def main(_):
 
     image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
 
-    images, labels = tf.train.batch(
-        [image, label],
+    images, labels, filenames = tf.train.batch(
+        [image, label, filename],
         batch_size=FLAGS.batch_size,
         num_threads=FLAGS.num_preprocessing_threads,
         capacity=5 * FLAGS.batch_size)
@@ -198,12 +190,10 @@ def main(_):
     predictions = tf.argmax(logits, 1)
     labels = tf.squeeze(labels)
 
-    # Define the metrics:
-    # names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-    #     'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
-    #     'Recall_5': slim.metrics.streaming_recall_at_k(
-    #         logits, labels, 5),
-    # })
+    mislabeled = tf.not_equal(predictions, labels)
+    mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
+    # eval_op = tf.Print(eval_op, [mislabeled_filenames])
+
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(
@@ -212,6 +202,7 @@ def main(_):
                                                         predictions),
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
+        'Misclassified_filenames': mislabeled_filenames,
     })
 
     # Print the summaries to screen.
@@ -247,13 +238,6 @@ def main(_):
         final_op=[names_to_updates['Confusion_matrix']]
     )
     print(confusion_matrix)
-    # slim.evaluation.evaluate_once(
-    #     master=FLAGS.master,
-    #     checkpoint_path=checkpoint_path,
-    #     logdir=FLAGS.eval_dir,
-    #     num_evals=num_batches,
-    #     eval_op=eval_op,
-    #     variables_to_restore=variables_to_restore)
 
 
 if __name__ == '__main__':
