@@ -148,16 +148,6 @@ def create_list(name, dtype=tf.int32):
 
 #     return mislabeled_filenames, predicted_class, original_class
 
-
-
-        confusion = _create_local('confusion_matrix',
-                                  shape=[num_classes, num_classes],
-                                  dtype=tf.int32)
-        # Create the update op for doing a "+=" accumulation on the batch
-        confusion_update = confusion.assign(confusion + batch_confusion)
-        # Cast counts to float so tf.summary.image renormalizes to [0,255]
-        confusion_image = tf.reshape(tf.cast(confusion, tf.float32),
-                                     [1, num_classes, num_classes, 1])
 def get_streaming_misc(mislabeled, tbmasked, field):
     field_types = {
         'mislabeled_filenames': tf.string,
