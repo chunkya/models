@@ -192,7 +192,6 @@ def main(_):
 
     mislabeled = tf.not_equal(predictions, labels)
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
-    # eval_op = tf.Print(eval_op, [mislabeled_filenames])
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
@@ -202,7 +201,6 @@ def main(_):
                                                         predictions),
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
-        'Misclassified_filenames': mislabeled_filenames,
     })
 
     # Print the summaries to screen.
@@ -226,13 +224,14 @@ def main(_):
       checkpoint_path = FLAGS.checkpoint_path
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
-    # eval_op = list(names_to_updates.values())
+    eval_op = list(names_to_updates.values())
+    eval_op = tf.Print(eval_op, [mislabeled_filenames])
     [confusion_matrix] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
         num_evals=num_batches,
-        eval_op=list(names_to_updates.values()),
+        eval_op=eval_op,
         variables_to_restore=variables_to_restore,
         # session_config=session_config,
         final_op=[names_to_updates['Confusion_matrix']]
