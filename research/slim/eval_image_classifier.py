@@ -192,6 +192,9 @@ def main(_):
 
     mislabeled = tf.not_equal(predictions, labels)
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
+    original_class = tf.boolean_mask(labels, mislabeled)
+    predicted_class = tf.boolean_mask(predictions, mislabeled)
+    merged = tf.merge(mislabeled_filenames)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
@@ -201,6 +204,7 @@ def main(_):
                                                         predictions),
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
+        'merged': merged,
     })
 
     # Print the summaries to screen.
