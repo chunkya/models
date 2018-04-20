@@ -254,7 +254,7 @@ def main(_):
     # op = tf.Print(mislabeled_filenames, [mislabeled_filenames], summarize=1000)
     # eval_op.append(op)
     # print(eval_op)
-    [confusion_matrix] = slim.evaluation.evaluate_once(
+    [confusion_matrix, misclassifications] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -265,6 +265,7 @@ def main(_):
         final_op=[names_to_updates['Confusion_matrix'], names_to_updates['misclassifications']]
     )
     print(confusion_matrix)
+    print(misclassifications)
 
 
 if __name__ == '__main__':
