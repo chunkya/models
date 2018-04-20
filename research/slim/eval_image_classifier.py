@@ -228,7 +228,8 @@ def main(_):
     eval_op.append(mislabeled_filenames)
     print(eval_op)
     op = tf.Print(mislabeled_filenames, [mislabeled_filenames])
-    tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+    eval_op.append(op)
+    print(eval_op)
     [confusion_matrix] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
