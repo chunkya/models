@@ -214,7 +214,7 @@ def main(_):
                                                    dataset.num_classes - FLAGS.labels_offset),
     })
 
-    Print the summaries to screen.
+    # Print the summaries to screen.
     for name, value in names_to_values.items():
       if name != 'Confusion_matrix':
         summary_name = 'eval/%s' % name
