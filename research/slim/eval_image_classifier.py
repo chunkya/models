@@ -121,14 +121,15 @@ def _get_streaming_metrics(prediction, label, num_classes):
 
     return confusion, confusion_update
 
-def create_list(name, collections=None, validate_shape=True):
+def create_list(name, dtype=tf.int32):
     collections = list(collections or [])
     collections += [tf.GraphKeys.LOCAL_VARIABLES]
     return tf.Variable(
         initial_value=[],
         name=name,
         trainable=False,
-        collections=collections)
+        collections=collections,
+        dtype=dtype)
 
 def get_streaming_misc(predictions, labels, filenames):
     with tf.name_scope("eval"):
@@ -138,9 +139,9 @@ def get_streaming_misc(predictions, labels, filenames):
         original_class = tf.boolean_mask(labels, mislabeled)
         predicted_class = tf.boolean_mask(predictions, mislabeled)
 
-        mislabeled_previous = create_list('mislabeled_filenames')
-        original_class_previous = create_list('original_class')
-        predicted_class_previous = create_list('predicted_class')
+        mislabeled_previous = create_list('mislabeled_filenames', tf.string)
+        original_class_previous = create_list('original_class', tf.uint8)
+        predicted_class_previous = create_list('predicted_class', tf.uint8)
 
         mislabeled_filenames = tf.stack([mislabeled_previous, mislabeled_filenames])
         predicted_class = tf.stack([predicted_class_previous, original_class])
