@@ -204,7 +204,7 @@ def main(_):
                                                         predictions),
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
-        'merged': merged,
+        # 'merged': merged,
     })
 
     # Print the summaries to screen.
@@ -231,7 +231,7 @@ def main(_):
     eval_op = list(names_to_updates.values())
     eval_op.append(mislabeled_filenames)
     print(eval_op)
-    op = tf.Print(mislabeled_filenames, [mislabeled_filenames])
+    op = tf.Print(merged, [merged])
     eval_op.append(op)
     print(eval_op)
     [confusion_matrix] = slim.evaluation.evaluate_once(
