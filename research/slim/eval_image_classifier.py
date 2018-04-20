@@ -161,7 +161,7 @@ def get_streaming_misc(mislabeled, tbmasked, field):
         mis_prev = create_list(field, field_types[field])
         mis_next = tf.concat([mis_prev, mis_field], 0)
 
-    return mis_next
+    return mis_prev, mis_next
 
 def main(_):
   if not FLAGS.dataset_dir:
