@@ -194,7 +194,7 @@ def main(_):
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
     original_class = tf.boolean_mask(labels, mislabeled)
     predicted_class = tf.boolean_mask(predictions, mislabeled)
-    merged = tf.merge(mislabeled_filenames)
+    merged = tf.summary.merge(mislabeled_filenames)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
