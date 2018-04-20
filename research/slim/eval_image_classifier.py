@@ -226,6 +226,7 @@ def main(_):
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
     eval_op.append(mislabeled_filenames)
+    print(eval_op)
     tf.Print(mislabeled_filenames, [mislabeled_filenames])
     [confusion_matrix] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
