@@ -232,9 +232,9 @@ def main(_):
     eval_op.append(predicted_classes)
     op = tf.Print(mislabeled_filenames, [mislabeled_filenames], summarize=1000)
     eval_op.append(op)
-    op = tf.Print(original_classes, [original_classes], summarize=1000)
+    op = tf.Print(original_classes, [original_classes], message='original', summarize=1000)
     eval_op.append(op)
-    op = tf.Print(predicted_classes, [predicted_classes], summarize=1000)
+    op = tf.Print(predicted_classes, [predicted_classes], message='predictions', summarize=1000)
     eval_op.append(op)
 
 
