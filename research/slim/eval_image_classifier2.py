@@ -192,7 +192,8 @@ def main(_):
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
     original_classes = tf.boolean_mask(labels, mislabeled)
     predicted_classes = tf.boolean_mask(predictions, mislabeled)
-    probabilities = tf.boolean_mask(logits[predictions], mislabeled)
+    print(logits[predictions].get_shape())
+    probabilities = tf.boolean_mask(tf.gather(logits, predictions, 0), mislabeled)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
