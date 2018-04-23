@@ -192,6 +192,7 @@ def main(_):
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
     original_classes = tf.boolean_mask(labels, mislabeled)
     predicted_classes = tf.boolean_mask(predictions, mislabeled)
+    probabilities = tf.boolean_mask(logits[predictions], mislabeled)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
@@ -204,6 +205,7 @@ def main(_):
         'mislabeled_filenames': tf.contrib.metrics.streaming_concat(mislabeled_filenames),
         'original_classes': tf.contrib.metrics.streaming_concat(original_classes),
         'predicted_classes': tf.contrib.metrics.streaming_concat(predicted_classes),
+        'probabilities': tf.contrib.metrics.streaming_concat(probabilities),
     })
 
     # Print the summaries to screen.
@@ -219,6 +221,7 @@ def main(_):
     filenames_op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']])
     original_op = tf.Print(names_to_values['original_classes'], [names_to_values['original_classes']])
     predicted_op = tf.Print(names_to_values['predicted_classes'], [names_to_values['predicted_classes']])
+    probabilities_op = tf.Print(names_to_values['probabilities'], [names_to_values['probabilities']])
 
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
@@ -234,7 +237,7 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    [confusion_matrix, filenames_op, original_op, predicted_op] = slim.evaluation.evaluate_once(
+    [confusion_matrix, filenames_op, original_op, predicted_op, probabilities_op] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -247,13 +250,15 @@ def main(_):
             filenames_op,
             original_op,
             predicted_op,
+            probabilities_op
         ]
     )
     print(confusion_matrix)
     filenames = list(filenames_op)
     original = list(original_op)
     predicted = list(predicted_op)
-    zipped = list(zip(filenames, original, predicted))
+    probabilities = list(probabilities_op)
+    zipped = list(zip(filenames, original, predicted, probabilities))
     print(zipped)
 
 if __name__ == '__main__':
