@@ -215,6 +215,9 @@ def main(_):
         op = tf.Print(op, [value], summary_name)
         tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
+    op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing')
+    tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
       num_batches = FLAGS.max_num_batches
