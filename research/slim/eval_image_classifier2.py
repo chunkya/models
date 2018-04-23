@@ -203,7 +203,7 @@ def main(_):
                                                    dataset.num_classes - FLAGS.labels_offset),
         'mislabeled_filenames': tf.contrib.metrics.streaming_concat(mislabeled_filenames),
         'original_classes': tf.contrib.metrics.streaming_concat(original_classes),
-        'predicted_classes': tf.contrib_metrics.streaming_concat(predicted_classes),
+        'predicted_classes': tf.contrib.metrics.streaming_concat(predicted_classes),
     })
 
     # Print the summaries to screen.
@@ -229,16 +229,6 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    eval_op.append(mislabeled_filenames)
-    eval_op.append(original_classes)
-    eval_op.append(predicted_classes)
-    op = tf.Print(mislabeled_filenames, [mislabeled_filenames], message='filenames', summarize=1000)
-    eval_op.append(op)
-    op = tf.Print(original_classes, [original_classes], message='original', summarize=1000)
-    eval_op.append(op)
-    op = tf.Print(predicted_classes, [predicted_classes], message='predictions', summarize=1000)
-    eval_op.append(op)
-
 
     [confusion_matrix, mislabeled_filenames, original_classes, predicted_classes] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
