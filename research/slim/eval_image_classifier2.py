@@ -202,10 +202,12 @@ def main(_):
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
         'mislabeled_filenames': tf.contrib.metrics.streaming_concat(mislabeled_filenames),
+        'original_classes': tf.contrib.metrics.streaming_concat(original_classes),
+        'predicted_classes': tf.contrib_metrics.streaming_concat(predicted_classes),
     })
 
     # Print the summaries to screen.
-    unnames = ['Confusion_matrix', 'mislabeled_filenames']
+    unnames = ['Confusion_matrix', 'mislabeled_filenames', 'original_classes', 'predicted_classes']
     for name, value in names_to_values.items():
       if name not in unnames:
         summary_name = 'eval/%s' % name
@@ -238,7 +240,7 @@ def main(_):
     eval_op.append(op)
 
 
-    [confusion_matrix, mislabeled_filenames] = slim.evaluation.evaluate_once(
+    [confusion_matrix, mislabeled_filenames, original_classes, predicted_classes] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -249,10 +251,14 @@ def main(_):
         final_op=[
             names_to_updates['Confusion_matrix'],
             names_to_updates['mislabeled_filenames'],
+            names_to_updates['original_classes'],
+            names_to_updates['predicted_classes'],
         ]
     )
     print(confusion_matrix)
-    print(mislabeled_filenames)
+    print('mislabeled_filenames', mislabeled_filenames)
+    print('original', original_classes)
+    print('predicted', predicted_classes)
 
 if __name__ == '__main__':
   tf.app.run()
