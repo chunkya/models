@@ -205,7 +205,7 @@ def main(_):
     })
 
     # Print the summaries to screen.
-    unnames = ['Confusion_matrix']
+    unnames = ['Confusion_matrix', 'mislabeled_filenames']
     for name, value in names_to_values.items():
       if name not in unnames:
         summary_name = 'eval/%s' % name
@@ -238,7 +238,7 @@ def main(_):
     eval_op.append(op)
 
 
-    [confusion_matrix] = slim.evaluation.evaluate_once(
+    [confusion_matrix, mislabeled_filenames] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -248,6 +248,7 @@ def main(_):
         # session_config=session_config,
         final_op=[
             names_to_updates['Confusion_matrix'],
+            names_to_updates['mislabeled_filenames'],
         ]
     )
     print(confusion_matrix)
