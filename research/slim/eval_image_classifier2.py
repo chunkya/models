@@ -195,6 +195,7 @@ def main(_):
     print(predictions.get_shape())
     print(logits.get_shape())
     top_probabilities = tf.gather(logits, predictions)
+    print(top_probabilities.shape())
     probabilities = tf.boolean_mask(top_probabilities, mislabeled)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
