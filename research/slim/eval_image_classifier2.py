@@ -216,7 +216,7 @@ def main(_):
         tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
     op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing')
-    tf.add_to_collection(tf.GraphKeys.LOCAL_VARIABLES, op)
+    tf.add_to_collection(tf.GraphKeys.CONCATENATED_VARIABLES, op)
 
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
@@ -245,6 +245,6 @@ def main(_):
         ]
     )
     print(confusion_matrix)
-    
+
 if __name__ == '__main__':
   tf.app.run()
