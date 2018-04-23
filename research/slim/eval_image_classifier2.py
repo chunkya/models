@@ -215,7 +215,7 @@ def main(_):
         op = tf.Print(op, [value], summary_name)
         tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
-    op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing')
+    op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing', summarize=1000)
     tf.add_to_collection(tf.GraphKeys.CONCATENATED_VARIABLES, op)
 
     # TODO(sguada) use num_epochs=1
@@ -232,7 +232,7 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    [confusion_matrix, mislabeled_filenames, print_op] = slim.evaluation.evaluate_once(
+    [confusion_matrix, print_op] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -242,14 +242,13 @@ def main(_):
         # session_config=session_config,
         final_op=[
             names_to_updates['Confusion_matrix'],
-            names_to_updates['mislabeled_filenames'],
             op
         ]
     )
     print(confusion_matrix)
-    print(op)
-    print(mislabeled_filenames)
     print(print_op)
+    print(type(print_op))
+    print(list(print_op))
 
 if __name__ == '__main__':
   tf.app.run()
