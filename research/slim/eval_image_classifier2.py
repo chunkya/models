@@ -215,8 +215,10 @@ def main(_):
         op = tf.Print(op, [value], summary_name)
         tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
-    op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing', summarize=1000)
-    tf.add_to_collection(tf.GraphKeys.CONCATENATED_VARIABLES, op)
+    # op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing', summarize=1000)
+    filenames_op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']])
+    original_op = tf.Print(names_to_values['original_classes'], [names_to_values['original_classes']])
+    predicted_op = tf.Print(names_to_values['predicted_classes'], [names_to_values['predicted_classes']])
 
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
@@ -232,7 +234,7 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    [confusion_matrix, print_op] = slim.evaluation.evaluate_once(
+    [confusion_matrix, filenames_op, original_op, predicted_op] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -242,13 +244,15 @@ def main(_):
         # session_config=session_config,
         final_op=[
             names_to_updates['Confusion_matrix'],
-            op
+            filenames_op,
+            original_op,
+            predicted_op,
         ]
     )
     print(confusion_matrix)
-    print(print_op)
-    print(type(print_op))
-    print(list(print_op))
+    print(list(filenames_op))
+    print(list(original_op))
+    print(list(predicted_op))
 
 if __name__ == '__main__':
   tf.app.run()
