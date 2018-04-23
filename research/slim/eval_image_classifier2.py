@@ -194,7 +194,7 @@ def main(_):
     predicted_classes = tf.boolean_mask(predictions, mislabeled)
     print(predictions.get_shape())
     print(logits.get_shape())
-    top_probabilities = tf.gather(logits, predictions)
+    top_probabilities = tf.gather_nd(logits, predictions)
     print(top_probabilities.get_shape())
     probabilities = tf.boolean_mask(top_probabilities, mislabeled)
 
