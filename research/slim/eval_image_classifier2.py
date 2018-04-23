@@ -252,6 +252,7 @@ def main(_):
         ]
     )
     print(confusion_matrix)
+    print(mislabeled_filenames)
 
 if __name__ == '__main__':
   tf.app.run()
