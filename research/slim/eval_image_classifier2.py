@@ -192,7 +192,7 @@ def main(_):
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
     original_classes = tf.boolean_mask(labels, mislabeled)
     predicted_classes = tf.boolean_mask(predictions, mislabeled)
-    top_probabilities = tf.gather(logits, predictions, 0)
+    top_probabilities = tf.gather(logits, predictions)
     probabilities = tf.boolean_mask(top_probabilities, mislabeled)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
