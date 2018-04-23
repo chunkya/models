@@ -121,7 +121,6 @@ def _get_streaming_metrics(prediction, label, num_classes):
 
     return confusion, confusion_update
 
-
 def main(_):
   if not FLAGS.dataset_dir:
     raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -202,6 +201,7 @@ def main(_):
                                                         predictions),
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
+        'mislabeled_filenames': tf.contrib.metrics.streaming_concat(mislabeled_filenames),
     })
 
     # Print the summaries to screen.
