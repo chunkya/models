@@ -210,7 +210,7 @@ def main(_):
     })
 
     # Print the summaries to screen.
-    unnames = ['Confusion_matrix', 'mislabeled_filenames', 'original_classes', 'predicted_classes']
+    unnames = ['Confusion_matrix', 'mislabeled_filenames', 'original_classes', 'predicted_classes', 'probabilities']
     for name, value in names_to_values.items():
       if name not in unnames:
         summary_name = 'eval/%s' % name
