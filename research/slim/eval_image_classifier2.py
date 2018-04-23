@@ -232,7 +232,7 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    [confusion_matrix] = slim.evaluation.evaluate_once(
+    [confusion_matrix, mislabeled_filenames] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -242,9 +242,12 @@ def main(_):
         # session_config=session_config,
         final_op=[
             names_to_updates['Confusion_matrix'],
+            names_to_updates['mislabeled_filenames']
         ]
     )
     print(confusion_matrix)
+    print(op)
+    print(mislabeled_filenames)
 
 if __name__ == '__main__':
   tf.app.run()
