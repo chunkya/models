@@ -250,9 +250,11 @@ def main(_):
         ]
     )
     print(confusion_matrix)
-    print(list(filenames_op))
-    print(list(original_op))
-    print(list(predicted_op))
+    filenames = list(filenames_op)
+    original = list(original_op)
+    predicted = list(predicted_op)
+    zipped = list(zip(filenames, original, predicted))
+    print(zipped)
 
 if __name__ == '__main__':
   tf.app.run()
