@@ -175,8 +175,8 @@ def main(_):
     ####################
     # Define the model #
     ####################
-    logits, preprobs = network_fn(images)
-
+    logits, end_points = network_fn(images)
+    preprobs = end_points['Predictions']
     if FLAGS.moving_average_decay:
       variable_averages = tf.train.ExponentialMovingAverage(
           FLAGS.moving_average_decay, tf_global_step)
