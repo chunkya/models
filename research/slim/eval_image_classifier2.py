@@ -192,12 +192,8 @@ def main(_):
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
     original_classes = tf.boolean_mask(labels, mislabeled)
     predicted_classes = tf.boolean_mask(predictions, mislabeled)
-    # print(predictions.get_shape())
-    # print(logits.get_shape())
-    # top_probabilities = tf.gather(logits, predictions, axis = 0)
-    # print(top_probabilities.get_shape())
-    # probabilities = tf.boolean_mask(top_probabilities, mislabeled)
     probabilities = tf.reduce_max(preprobs, 1)
+
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(

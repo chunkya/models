@@ -69,11 +69,11 @@ def _get_filenames_and_classes(dataset_dir):
     subdirectories, representing class names.
   """
   # dataset_dir is /data/safe/demographics/ethnicity/cropped_faces
-  ethnicity_root = os.path.join(dataset_dir, 'photos')
+  images_dir = os.path.join(dataset_dir, 'photos')
   directories = []
   class_names = []
-  for filename in os.listdir(ethnicity_root):
-    path = os.path.join(ethnicity_root, filename)
+  for filename in os.listdir(images_dir):
+    path = os.path.join(images_dir, filename)
     if os.path.isdir(path):
       directories.append(path)
       class_names.append(filename)
@@ -88,7 +88,7 @@ def _get_filenames_and_classes(dataset_dir):
 
 
 def _get_dataset_filename(dataset_dir, split_name, shard_id):
-  output_filename = 'tf_record/ethnicity_%s_%05d-of-%05d.tfrecord' % (
+  output_filename = 'tf_record/data_%s_%05d-of-%05d.tfrecord' % (
       split_name, shard_id, _NUM_SHARDS)
   return os.path.join(dataset_dir, output_filename)
 

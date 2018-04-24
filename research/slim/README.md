@@ -2,17 +2,17 @@
 
 Let's say you have a directory of images: ```/data/photos/class1```, ```/data/photos/class2```,...
 
-To create TFRecord from directory of images:
+To create TFRecord from directory of images in /data/tf_record:
 
 ```
-python3 download_and_convert_data.py --dataset_name=ethnicity --dataset_dir=/data/
+python3 convert_data.py --dataset_name=standard --dataset_dir=/data/
 ```
 
 To train model from scratch using TFRecords:
 
 ```
 python3 train_image_classifier.py --train_dir=/tmp/train_logs \
-  --dataset_name=ethnicity \
+  --dataset_name=standard \
   --dataset_split_name=train \
   --dataset_dir=/data/tf_record \
   --model_name=inception_v3
@@ -25,7 +25,7 @@ python3 export_inference_graph.py \
   --alsologtostderr \
   --model_name=inception_v3 \
   --output_file=/tmp/inception_v3_inf_graph.pb \
-  --dataset_name=ethnicity
+  --dataset_name=standard
 ```
 
 
@@ -43,3 +43,13 @@ bazel-bin/tensorflow/python/tools/freeze_graph \
   --input_binary=true --output_graph=/tmp/frozen_inception_v3.pb \
   --output_node_names=InceptionV3/Predictions/Reshape_1
 ```
+
+## Creating Saved Model
+```
+python3 export_saved_model.py \
+  --input_layer=input \
+  --output_layer=InceptionV3/Predictions/Reshape_1 \
+  --graph_file=/tmp/frozen_inception_v3.pb \
+  --output_dir=/path/to/saved_model
+```
+
