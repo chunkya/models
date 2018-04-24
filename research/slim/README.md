@@ -49,6 +49,8 @@ If you then want to use the resulting model with your own or pretrained
 checkpoints as part of a mobile model, you can run freeze_graph to get a graph
 def with the variables inlined as constants using:
 
+*Note: This should be run from tensorflow main repository*
+
 ```shell
 bazel build tensorflow/python/tools:freeze_graph
 
