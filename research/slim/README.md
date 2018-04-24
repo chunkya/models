@@ -72,8 +72,7 @@ python3 export_saved_model.py \
 
 To deploy the saved model you can use the tensorflow-serving dockerfile and
 modify it to copy your saved model bundle into the container if you want to deploy on deathbox.
-Otherwise, you can use the Dockerfile which deploys on CPU and deploy on
-kubernetes or something.
+
 
 
 
