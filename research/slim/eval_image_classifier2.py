@@ -175,7 +175,7 @@ def main(_):
     ####################
     # Define the model #
     ####################
-    logits, _ = network_fn(images)
+    logits, preprobs = network_fn(images)
 
     if FLAGS.moving_average_decay:
       variable_averages = tf.train.ExponentialMovingAverage(
@@ -197,7 +197,7 @@ def main(_):
     # top_probabilities = tf.gather(logits, predictions, axis = 0)
     # print(top_probabilities.get_shape())
     # probabilities = tf.boolean_mask(top_probabilities, mislabeled)
-    probabilities = tf.reduce_max(logits, 1)
+    probabilities = tf.reduce_max(preprobs, 1)
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
         'Recall_5': slim.metrics.streaming_recall_at_k(
