@@ -121,7 +121,6 @@ def _get_streaming_metrics(prediction, label, num_classes):
 
     return confusion, confusion_update
 
-
 def main(_):
   if not FLAGS.dataset_dir:
     raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -176,8 +175,8 @@ def main(_):
     ####################
     # Define the model #
     ####################
-    logits, _ = network_fn(images)
-
+    logits, end_points = network_fn(images)
+    preprobs = end_points['Predictions']
     if FLAGS.moving_average_decay:
       variable_averages = tf.train.ExponentialMovingAverage(
           FLAGS.moving_average_decay, tf_global_step)
@@ -193,6 +192,7 @@ def main(_):
     mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
     original_classes = tf.boolean_mask(labels, mislabeled)
     predicted_classes = tf.boolean_mask(predictions, mislabeled)
+    probabilities = tf.reduce_max(preprobs, 1)
 
     names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
         'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
@@ -202,16 +202,26 @@ def main(_):
                                                         predictions),
         'Confusion_matrix': _get_streaming_metrics(predictions, labels,
                                                    dataset.num_classes - FLAGS.labels_offset),
+        'mislabeled_filenames': tf.contrib.metrics.streaming_concat(mislabeled_filenames),
+        'original_classes': tf.contrib.metrics.streaming_concat(original_classes),
+        'predicted_classes': tf.contrib.metrics.streaming_concat(predicted_classes),
+        'probabilities': tf.contrib.metrics.streaming_concat(probabilities),
     })
 
     # Print the summaries to screen.
-    unnames = ['Confusion_matrix']
+    unnames = ['Confusion_matrix', 'mislabeled_filenames', 'original_classes', 'predicted_classes', 'probabilities']
     for name, value in names_to_values.items():
       if name not in unnames:
         summary_name = 'eval/%s' % name
         op = tf.summary.scalar(summary_name, value, collections=[])
         op = tf.Print(op, [value], summary_name)
         tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+
+    # op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing', summarize=1000)
+    filenames_op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']])
+    original_op = tf.Print(names_to_values['original_classes'], [names_to_values['original_classes']])
+    predicted_op = tf.Print(names_to_values['predicted_classes'], [names_to_values['predicted_classes']])
+    probabilities_op = tf.Print(names_to_values['probabilities'], [names_to_values['probabilities']])
 
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
@@ -227,18 +237,7 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    eval_op.append(mislabeled_filenames)
-    eval_op.append(original_classes)
-    eval_op.append(predicted_classes)
-    op = tf.Print(mislabeled_filenames, [mislabeled_filenames], message='filenames', summarize=1000)
-    eval_op.append(op)
-    op = tf.Print(original_classes, [original_classes], message='original', summarize=1000)
-    eval_op.append(op)
-    op = tf.Print(predicted_classes, [predicted_classes], message='predictions', summarize=1000)
-    eval_op.append(op)
-
-
-    [confusion_matrix] = slim.evaluation.evaluate_once(
+    [confusion_matrix, filenames_op, original_op, predicted_op, probabilities_op] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -248,9 +247,19 @@ def main(_):
         # session_config=session_config,
         final_op=[
             names_to_updates['Confusion_matrix'],
+            filenames_op,
+            original_op,
+            predicted_op,
+            probabilities_op
         ]
     )
     print(confusion_matrix)
+    filenames = list(filenames_op)
+    original = list(original_op)
+    predicted = list(predicted_op)
+    probabilities = list(probabilities_op)
+    zipped = list(zip(filenames, original, predicted, probabilities))
+    print(zipped)
 
 if __name__ == '__main__':
   tf.app.run()

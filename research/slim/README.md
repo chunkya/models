@@ -2,8 +2,9 @@
 
 Let's say you have a directory of images: ```/data/photos/class1```, ```/data/photos/class2```,...
 
-To create TFRecord from directory of images in /data/tf_record:
+For this step make sure there are only RGB images in your dataset.
 
+To create TFRecord from directory of images in /data/tf_record:
 ```
 python3 convert_data.py --dataset_name=standard --dataset_dir=/data/
 ```
@@ -29,6 +30,20 @@ python3 export_inference_graph.py \
 ```
 
 
+## Evaluating model
+You can evaluate the model using:
+```
+python3 eval_image_classifier.py \
+  --alsologtoostderr \
+  --checkpoint_path=${CHECKPOINT_PATH} \
+  --dataset_dir=${DATASET_DIR} \
+  --dataset_name=standard \
+  --dataset_split=validation \
+  --model_name=inception_v3
+```
+This will show you the accuracy of the model as well as confusion matrix and
+also a whole list of wrongly classified images.
+
 ## Freezing the exported Graph
 If you then want to use the resulting model with your own or pretrained
 checkpoints as part of a mobile model, you can run freeze_graph to get a graph
@@ -52,4 +67,13 @@ python3 export_saved_model.py \
   --graph_file=/tmp/frozen_inception_v3.pb \
   --output_dir=/path/to/saved_model
 ```
+
+## Deploying saved model using tensorflow serving
+
+To deploy the saved model you can use the tensorflow-serving dockerfile and
+modify it to copy your saved model bundle into the container if you want to deploy on deathbox.
+Otherwise, you can use the Dockerfile which deploys on CPU and deploy on
+kubernetes or something.
+
+
 
