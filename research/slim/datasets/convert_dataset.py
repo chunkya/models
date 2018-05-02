@@ -182,5 +182,4 @@ def run(dataset_dir):
   dataset_utils.write_label_file(labels_to_class_names, tf_record_path)
   dataset_utils.write_split_file(num_train, num_val, tf_record_path)
 
-  # _clean_up_temporary_files(dataset_dir)
-  print('\nFinished converting the Flowers dataset!')
+  print('\nFinished converting the Dataset dataset!')
