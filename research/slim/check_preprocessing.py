@@ -24,6 +24,7 @@ import tensorflow as tf
 from datasets import dataset_factory
 from nets import nets_factory
 from preprocessing import preprocessing_factory
+import numpy
 
 slim = tf.contrib.slim
 
@@ -262,7 +263,7 @@ def main(_):
     probabilities = list(probabilities_op)
     zipped = list(zip(filenames, original, predicted, probabilities))
     print(zipped)
-    np.set_printoptions(threshold=numpy.nan)
+    numpy.set_printoptions(threshold=numpy.nan)
     print(image)
     print(new_image)
 
