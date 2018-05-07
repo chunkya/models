@@ -279,6 +279,7 @@ def preprocess_for_eval(image, height, width,
       image = tf.squeeze(image, [0])
     image = tf.subtract(image, 0.5)
     image = tf.multiply(image, 2.0)
+    print(image)
     return image
 
 
