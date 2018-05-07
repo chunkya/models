@@ -262,6 +262,7 @@ def main(_):
     probabilities = list(probabilities_op)
     zipped = list(zip(filenames, original, predicted, probabilities))
     print(zipped)
+    np.set_printoptions(threshold=numpy.nan)
     print(image)
     print(new_image)
 
