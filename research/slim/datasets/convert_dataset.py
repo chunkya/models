@@ -52,6 +52,7 @@ class ImageReader(object):
   def decode_jpeg(self, sess, image_data):
     image = sess.run(self._decode_jpeg,
                      feed_dict={self._decode_jpeg_data: image_data})
+    print(image)
     assert len(image.shape) == 3
     assert image.shape[2] == 3
     return image
