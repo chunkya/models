@@ -151,7 +151,7 @@ def main(_):
         shuffle=False,
         common_queue_capacity=2 * FLAGS.batch_size,
         common_queue_min=FLAGS.batch_size)
-    [image, label, filename] = provider.get(['image', 'label', 'filename'])
+    [preimage, label, filename] = provider.get(['image', 'label', 'filename'])
     label -= FLAGS.labels_offset
 
     #####################################
@@ -164,11 +164,106 @@ def main(_):
 
     eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
 
+    image = image_preprocessing_fn(preimage, eval_image_size, eval_image_size)
 
-    new_image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
+    images, labels, filenames = tf.train.batch(
+        [image, label, filename],
+        batch_size=FLAGS.batch_size,
+        num_threads=FLAGS.num_preprocessing_threads,
+        capacity=5 * FLAGS.batch_size)
 
-    with tf.Session() as sess:
-      sess.run([image, new_image])
+    ####################
+    # Define the model #
+    ####################
+    logits, end_points = network_fn(images)
+    preprobs = end_points['Predictions']
+    if FLAGS.moving_average_decay:
+      variable_averages = tf.train.ExponentialMovingAverage(
+          FLAGS.moving_average_decay, tf_global_step)
+      variables_to_restore = variable_averages.variables_to_restore(
+          slim.get_model_variables())
+      variables_to_restore[tf_global_step.op.name] = tf_global_step
+    else:
+      variables_to_restore = slim.get_variables_to_restore()
+
+    predictions = tf.argmax(logits, 1)
+    labels = tf.squeeze(labels)
+    mislabeled = tf.not_equal(predictions, labels)
+    mislabeled_filenames = tf.boolean_mask(filenames, mislabeled)
+    original_classes = tf.boolean_mask(labels, mislabeled)
+    predicted_classes = tf.boolean_mask(predictions, mislabeled)
+    probabilities = tf.reduce_max(preprobs, 1)
+
+    names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
+        'Accuracy': slim.metrics.streaming_accuracy(predictions, labels),
+        'Recall_5': slim.metrics.streaming_recall_at_k(
+            logits, labels, 5),
+        'Mean_absolute': tf.metrics.mean_absolute_error(labels,
+                                                        predictions),
+        'Confusion_matrix': _get_streaming_metrics(predictions, labels,
+                                                   dataset.num_classes - FLAGS.labels_offset),
+        'mislabeled_filenames': tf.contrib.metrics.streaming_concat(mislabeled_filenames),
+        'original_classes': tf.contrib.metrics.streaming_concat(original_classes),
+        'predicted_classes': tf.contrib.metrics.streaming_concat(predicted_classes),
+        'probabilities': tf.contrib.metrics.streaming_concat(probabilities),
+    })
+
+    # Print the summaries to screen.
+    unnames = ['Confusion_matrix', 'mislabeled_filenames', 'original_classes', 'predicted_classes', 'probabilities']
+    for name, value in names_to_values.items():
+      if name not in unnames:
+        summary_name = 'eval/%s' % name
+        op = tf.summary.scalar(summary_name, value, collections=[])
+        op = tf.Print(op, [value], summary_name)
+        tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+
+    # op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing', summarize=1000)
+    filenames_op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']])
+    original_op = tf.Print(names_to_values['original_classes'], [names_to_values['original_classes']])
+    predicted_op = tf.Print(names_to_values['predicted_classes'], [names_to_values['predicted_classes']])
+    probabilities_op = tf.Print(names_to_values['probabilities'], [names_to_values['probabilities']])
+
+    # TODO(sguada) use num_epochs=1
+    if FLAGS.max_num_batches:
+      num_batches = FLAGS.max_num_batches
+    else:
+      # This ensures that we make a single pass over all of the data.
+      num_batches = math.ceil(dataset.num_samples / float(FLAGS.batch_size))
+
+    if tf.gfile.IsDirectory(FLAGS.checkpoint_path):
+      checkpoint_path = tf.train.latest_checkpoint(FLAGS.checkpoint_path)
+    else:
+      checkpoint_path = FLAGS.checkpoint_path
+
+    tf.logging.info('Evaluating %s' % checkpoint_path)
+    eval_op = list(names_to_updates.values())
+    [confusion_matrix, filenames_op, original_op, predicted_op, probabilities_op, image, new_image] = slim.evaluation.evaluate_once(
+        master=FLAGS.master,
+        checkpoint_path=checkpoint_path,
+        logdir=FLAGS.eval_dir,
+        num_evals=num_batches,
+        eval_op=eval_op,
+        variables_to_restore=variables_to_restore,
+        # session_config=session_config,
+        final_op=[
+            names_to_updates['Confusion_matrix'],
+            filenames_op,
+            original_op,
+            predicted_op,
+            probabilities_op,
+            preimage,
+            image
+        ]
+    )
+    print(confusion_matrix)
+    filenames = list(filenames_op)
+    original = list(original_op)
+    predicted = list(predicted_op)
+    probabilities = list(probabilities_op)
+    zipped = list(zip(filenames, original, predicted, probabilities))
+    print(zipped)
+    print(image)
+    print(new_image)
 
 if __name__ == '__main__':
   tf.app.run()
