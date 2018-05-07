@@ -167,8 +167,8 @@ def main(_):
 
     new_image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
 
-  with tf.Session() as sess:
-    sess.run([image, new_image])
+    with tf.Session() as sess:
+      sess.run([image, new_image])
 
 if __name__ == '__main__':
   tf.app.run()
