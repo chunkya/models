@@ -264,8 +264,9 @@ def main(_):
     zipped = list(zip(filenames, original, predicted, probabilities))
     print(zipped)
     numpy.set_printoptions(threshold=numpy.nan)
-    print(image)
-    print(new_image)
+    print(image.shape, new_image.shape)
+    print(image[:, :, 0])
+    print(new_image[:, :, 0])
 
 if __name__ == '__main__':
   tf.app.run()
