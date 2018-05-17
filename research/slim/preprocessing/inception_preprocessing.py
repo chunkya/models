@@ -273,17 +273,12 @@ def preprocess_for_eval(image, height, width,
 
     if height and width:
       # Resize the image to the specified height and width.
-      print("TESTSTT")
-      print(image)
       image = tf.expand_dims(image, 0)
       image = tf.image.resize_bilinear(image, [height, width],
                                        align_corners=False)
-      print(image)
       image = tf.squeeze(image, [0])
     image = tf.subtract(image, 0.5)
     image = tf.multiply(image, 2.0)
-    print(image)
-    # x = tf.Print(image, [image], message="Test")
     return image
 
 
