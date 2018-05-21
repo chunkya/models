@@ -34,7 +34,7 @@ from datasets import dataset_utils
 _RANDOM_SEED = 0
 
 # The number of shards per dataset split.
-_NUM_SHARDS = 15
+_NUM_SHARDS = 30
 
 
 class ImageReader(object):
