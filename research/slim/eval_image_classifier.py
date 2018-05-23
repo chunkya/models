@@ -221,11 +221,6 @@ def main(_):
         tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
     # op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']], 'testing', summarize=1000)
-    filenames_op = tf.Print(names_to_values['mislabeled_filenames'], [names_to_values['mislabeled_filenames']])
-    original_op = tf.Print(names_to_values['original_classes'], [names_to_values['original_classes']])
-    predicted_op = tf.Print(names_to_values['predicted_classes'], [names_to_values['predicted_classes']])
-    probabilities_op = tf.Print(names_to_values['probabilities'], [names_to_values['probabilities']])
-
     # TODO(sguada) use num_epochs=1
     if FLAGS.max_num_batches:
       num_batches = FLAGS.max_num_batches
@@ -240,7 +235,13 @@ def main(_):
 
     tf.logging.info('Evaluating %s' % checkpoint_path)
     eval_op = list(names_to_updates.values())
-    [confusion_matrix, filenames_op, original_op, predicted_op, probabilities_op] = slim.evaluation.evaluate_once(
+    [
+        confusion_matrix,
+        mislabeled_filenames,
+        original_classes,
+        predicted_classes,
+        probabilities,
+    ] = slim.evaluation.evaluate_once(
         master=FLAGS.master,
         checkpoint_path=checkpoint_path,
         logdir=FLAGS.eval_dir,
@@ -250,17 +251,17 @@ def main(_):
         # session_config=session_config,
         final_op=[
             names_to_updates['Confusion_matrix'],
-            filenames_op,
-            original_op,
-            predicted_op,
-            probabilities_op
+            names_to_updates['mislabeled_filenames'],
+            names_to_updates['original_classes'],
+            names_to_updates['predicted_classes'],
+            names_to_updates['probabilities']
         ]
     )
     print(confusion_matrix)
-    filenames = list(filenames_op)
-    original = list(original_op)
-    predicted = list(predicted_op)
-    probabilities = list(probabilities_op)
+    filenames = list(mislabeled_filenames)
+    original = list(original_classes)
+    predicted = list(predicted_classes)
+    probabilities = list(probabilities)
     if FLAGS.print_misclassified_images:
         zipped = list(zip(filenames, original, predicted, probabilities))
         print(zipped)
