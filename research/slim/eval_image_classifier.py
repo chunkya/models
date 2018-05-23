@@ -79,6 +79,9 @@ tf.app.flags.DEFINE_float(
 tf.app.flags.DEFINE_integer(
     'eval_image_size', None, 'Eval image size')
 
+tf.app.flags.DEFINE_bool(
+    'print_misclassified_images', False, 'Print print_misclassified_images')
+
 FLAGS = tf.app.flags.FLAGS
 
 def _create_local(name, shape, collections=None, validate_shape=True,
@@ -258,8 +261,9 @@ def main(_):
     original = list(original_op)
     predicted = list(predicted_op)
     probabilities = list(probabilities_op)
-    zipped = list(zip(filenames, original, predicted, probabilities))
-    print(zipped)
+    if FLAGS.print_misclassified_images:
+        zipped = list(zip(filenames, original, predicted, probabilities))
+        print(zipped)
 
 if __name__ == '__main__':
   tf.app.run()
