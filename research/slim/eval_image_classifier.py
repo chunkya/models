@@ -264,7 +264,7 @@ def main(_):
         predicted = list(predicted_classes)
         probabilities = list(probabilities)
         with open('misclassified_images.txt', 'w') as f:
-            f.write(json.dumps(list(zip(filenames, original, predicted, probabilities))))
+            f.write(list(zip(filenames, original, predicted, probabilities)))
         if FLAGS.print_misclassified_images:
             zipped = list(zip(filenames, original, predicted, probabilities))
             print(zipped)
