@@ -20,7 +20,7 @@ from __future__ import print_function
 
 import math
 import tensorflow as tf
-import json
+import pickle
 
 from datasets import dataset_factory
 from nets import nets_factory
@@ -263,8 +263,8 @@ def main(_):
         original = list(original_classes)
         predicted = list(predicted_classes)
         probabilities = list(probabilities)
-        with open('misclassified_images.txt', 'w') as f:
-            f.write(str(list(zip(filenames, original, predicted, probabilities))))
+        with open('misclassified_images.p', 'wb') as f:
+            pickle.dump(list(zip(filenames, original, predicted, probabilities)), f)
         if FLAGS.print_misclassified_images:
             zipped = list(zip(filenames, original, predicted, probabilities))
             print(zipped)
